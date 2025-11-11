@@ -21,7 +21,6 @@ The project is split into two main components:
 ## 💻 Setup and Installation
 
 ### Step 1: Clone the Repository
-### Step 1: Clone the Repository
 
 
 Clone this project to your local machine:
@@ -29,7 +28,7 @@ Clone this project to your local machine:
 git clone [YOUR_REPO_URL]
 cd gemini-browser-extension
 
-### Step 2: Backend SErver Setup (Node.js)
+### Step 2: Backend Server Setup (Node.js)
 A. Install dependencies - navigate to the project root and install the required Node.js packages:
 
 npm install express cors dotenv @google/genai
