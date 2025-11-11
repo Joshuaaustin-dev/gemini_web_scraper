@@ -1,21 +1,32 @@
 /* TRON: Legacy Style Overrides */
 
+/* TRON ARES Red color variables */
+:root {
+  --tron-bg: #070306; /* near-black base */
+  --tron-panel: #000000; /* panel/input backgrounds */
+  --tron-red: #ff0033; /* TRON ARES primary red */
+  --tron-red-glow: #ff3366; /* lighter/glow red */
+  --tron-red-weak: #ff003322; /* translucent red for borders */
+  --tron-red-40: #ff003340; /* semi-transparent for shadows */
+  --tron-text: #ffecec; /* warm off-white text */
+}
+
 /* Global Body and Font */
 body {
   width: 350px; /* Slightly wider for better UI */
   padding: 16px;
   font-family: "Consolas", "Monaco", monospace; /* Techy monospace font */
-  background-color: #0a1c29; /* Very dark, near-black blue */
-  color: #e0ffff; /* Bright white/cyan text color */
+  background-color: var(--tron-bg); /* Very dark base */
+  color: var(--tron-text); /* Warm light text */
   line-height: 1.4;
-  border: 1px solid #00ffff33; /* Subtle light border around the popup */
+  border: 1px solid var(--tron-red-weak); /* Subtle red border around the popup */
   border-radius: 6px;
 }
 
 /* Headings/Titles (If applicable, not in original CSS, but good practice) */
 h2 {
-  color: #00ffff; /* Neon Blue Accent */
-  text-shadow: 0 0 5px #00ffff; /* Glow effect */
+  color: var(--tron-red); /* Neon Red Accent */
+  text-shadow: 0 0 6px var(--tron-red-glow); /* Glow effect */
   margin-top: 0;
 }
 
@@ -28,9 +39,9 @@ textarea {
   box-sizing: border-box;
 
   /* TRON Styling */
-  background-color: #000000; /* Pure black input background */
-  color: #00ffff; /* Neon typing color */
-  border: 1px solid #00ffff55; /* Light blue border */
+  background-color: var(--tron-panel); /* Pure black input background */
+  color: var(--tron-red); /* Neon typing color (red) */
+  border: 1px solid var(--tron-red-weak); /* Light red border */
   border-radius: 4px;
   resize: vertical;
   font-size: 14px;
@@ -38,8 +49,8 @@ textarea {
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 textarea:focus {
-  border-color: #00ffff; /* Intense blue border on focus */
-  box-shadow: 0 0 10px #00ffff55; /* Subtle glow on focus */
+  border-color: var(--tron-red); /* Intense red border on focus */
+  box-shadow: 0 0 12px var(--tron-red-40); /* Subtle red glow on focus */
 }
 
 /* Response Area (The Output Display) */
@@ -47,20 +58,20 @@ textarea:focus {
   margin-top: 16px;
   padding: 12px;
   min-height: 50px;
-  background-color: #0a1c29; /* Match body background */
-  color: #e0ffff;
-  border: 1px solid #00ffff55;
+  background-color: var(--tron-bg); /* Match body background */
+  color: var(--tron-text);
+  border: 1px solid var(--tron-red-weak);
   border-radius: 4px;
   white-space: pre-wrap;
-  box-shadow: 0 0 5px #00ffff33; /* Light box shadow for glow */
+  box-shadow: 0 0 8px var(--tron-red-40); /* Light red box shadow for glow */
 }
 
 /* Button Styling (The Call to Action) */
 button {
   padding: 10px 14px;
-  background-color: #0a1c29; /* Dark background */
-  color: #00ffff; /* Neon text */
-  border: 1px solid #00ffff; /* Strong neon border */
+  background-color: var(--tron-bg); /* Dark background */
+  color: var(--tron-red); /* Neon red text */
+  border: 1px solid var(--tron-red); /* Strong neon red border */
   cursor: pointer;
   border-radius: 4px;
   font-size: 14px;
@@ -68,11 +79,11 @@ button {
   transition: background-color 0.2s, box-shadow 0.2s;
 }
 button:hover {
-  background-color: #00ffff1a; /* Very subtle glow on hover */
-  box-shadow: 0 0 15px #00ffff; /* Stronger glow */
+  background-color: var(--tron-red-weak); /* Very subtle red glow on hover */
+  box-shadow: 0 0 16px var(--tron-red); /* Stronger red glow */
 }
 button:active {
-  background-color: #00ffff44; /* Pressed effect */
+  background-color: #ff003344; /* Pressed effect (red translucent) */
 }
 button[disabled] {
   opacity: 0.5;
@@ -87,31 +98,31 @@ button[disabled] {
 @keyframes lightCycle {
   0% {
     clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
-    border-color: #00ffff;
+    border-color: var(--tron-red);
   }
   15% {
     clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
-    border-color: #40ffff;
+    border-color: var(--tron-red-glow);
   }
   35% {
     clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 0);
-    border-color: #00ffff;
+    border-color: var(--tron-red);
   }
   50% {
     clip-path: polygon(100% 0, 100% 100%, 100% 100%, 100% 100%);
-    border-color: #40ffff;
+    border-color: var(--tron-red-glow);
   }
   65% {
     clip-path: polygon(100% 100%, 100% 100%, 0 100%, 100% 100%);
-    border-color: #00ffff;
+    border-color: var(--tron-red);
   }
   85% {
     clip-path: polygon(0 100%, 0 100%, 0 0, 0 100%);
-    border-color: #40ffff;
+    border-color: var(--tron-red-glow);
   }
   100% {
     clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
-    border-color: #00ffff;
+    border-color: var(--tron-red);
   }
 }
 
@@ -144,11 +155,11 @@ button[disabled] {
 .loading-box {
   position: absolute;
   inset: -2px;
-  border: 2px solid #00ffff;
+  border: 2px solid var(--tron-red);
   border-radius: 6px;
   animation: lightCycle 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   pointer-events: none;
-  box-shadow: 0 0 10px #00ffff40;
+  box-shadow: 0 0 12px var(--tron-red-40);
 }
 
 .loading-box::before,
@@ -156,7 +167,7 @@ button[disabled] {
   content: "";
   position: absolute;
   inset: -2px;
-  border: 2px solid #00ffff;
+  border: 2px solid var(--tron-red);
   border-radius: 6px;
   opacity: 0.8;
 }
@@ -195,7 +206,7 @@ button[disabled] {
 
 #status.loading {
   position: relative;
-  color: #00ffff;
+  color: var(--tron-red);
 }
 
 #status.loading::after {
@@ -213,16 +224,16 @@ button[disabled] {
   margin-bottom: 8px;
 }
 .msg {
-  /* Keeping the box design for readability, but TRON-themed */
+  /* Keeping the box design for readability, but TRON ARES-themed */
   background: #000000;
-  border: 1px solid #00ffff22;
+  border: 1px solid var(--tron-red-weak);
   border-radius: 4px;
   padding: 8px 10px;
   margin: 6px 0;
-  box-shadow: 0 0 3px #00ffff1a;
+  box-shadow: 0 0 4px var(--tron-red-40);
 }
 #status.muted {
-  color: #77ffff;
+  color: var(--tron-red-glow);
   font-size: 0.9em;
 }
 
