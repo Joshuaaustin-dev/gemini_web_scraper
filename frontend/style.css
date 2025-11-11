@@ -1,0 +1,267 @@
+/* TRON: Legacy Style Overrides */
+
+/* Global Body and Font */
+body {
+  width: 350px; /* Slightly wider for better UI */
+  padding: 16px;
+  font-family: "Consolas", "Monaco", monospace; /* Techy monospace font */
+  background-color: #0a1c29; /* Very dark, near-black blue */
+  color: #e0ffff; /* Bright white/cyan text color */
+  line-height: 1.4;
+  border: 1px solid #00ffff33; /* Subtle light border around the popup */
+  border-radius: 6px;
+}
+
+/* Headings/Titles (If applicable, not in original CSS, but good practice) */
+h2 {
+  color: #00ffff; /* Neon Blue Accent */
+  text-shadow: 0 0 5px #00ffff; /* Glow effect */
+  margin-top: 0;
+}
+
+/* Input/Textarea Styling (The Grid Console) */
+textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+
+  /* TRON Styling */
+  background-color: #000000; /* Pure black input background */
+  color: #00ffff; /* Neon typing color */
+  border: 1px solid #00ffff55; /* Light blue border */
+  border-radius: 4px;
+  resize: vertical;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+textarea:focus {
+  border-color: #00ffff; /* Intense blue border on focus */
+  box-shadow: 0 0 10px #00ffff55; /* Subtle glow on focus */
+}
+
+/* Response Area (The Output Display) */
+#response {
+  margin-top: 16px;
+  padding: 12px;
+  min-height: 50px;
+  background-color: #0a1c29; /* Match body background */
+  color: #e0ffff;
+  border: 1px solid #00ffff55;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  box-shadow: 0 0 5px #00ffff33; /* Light box shadow for glow */
+}
+
+/* Button Styling (The Call to Action) */
+button {
+  padding: 10px 14px;
+  background-color: #0a1c29; /* Dark background */
+  color: #00ffff; /* Neon text */
+  border: 1px solid #00ffff; /* Strong neon border */
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  text-transform: uppercase;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+button:hover {
+  background-color: #00ffff1a; /* Very subtle glow on hover */
+  box-shadow: 0 0 15px #00ffff; /* Stronger glow */
+}
+button:active {
+  background-color: #00ffff44; /* Pressed effect */
+}
+button[disabled] {
+  opacity: 0.5;
+  color: #e0ffff; /* Keep the color light */
+  border-color: #e0ffff33;
+  background-color: #0a1c29;
+  box-shadow: none;
+  cursor: default;
+}
+
+/* TRON Light Cycle Loading Animation */
+@keyframes lightCycle {
+  0% {
+    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+    border-color: #00ffff;
+  }
+  15% {
+    clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+    border-color: #40ffff;
+  }
+  35% {
+    clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 0);
+    border-color: #00ffff;
+  }
+  50% {
+    clip-path: polygon(100% 0, 100% 100%, 100% 100%, 100% 100%);
+    border-color: #40ffff;
+  }
+  65% {
+    clip-path: polygon(100% 100%, 100% 100%, 0 100%, 100% 100%);
+    border-color: #00ffff;
+  }
+  85% {
+    clip-path: polygon(0 100%, 0 100%, 0 0, 0 100%);
+    border-color: #40ffff;
+  }
+  100% {
+    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+    border-color: #00ffff;
+  }
+}
+
+@keyframes trailEffect {
+  0% {
+    transform: scaleX(0.3);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+
+@keyframes glowPulse {
+  0% {
+    opacity: 0.3;
+    filter: blur(3px);
+  }
+  50% {
+    opacity: 1;
+    filter: blur(5px);
+  }
+  100% {
+    opacity: 0.3;
+    filter: blur(3px);
+  }
+}
+
+.loading-box {
+  position: absolute;
+  inset: -2px;
+  border: 2px solid #00ffff;
+  border-radius: 6px;
+  animation: lightCycle 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+  box-shadow: 0 0 10px #00ffff40;
+}
+
+.loading-box::before,
+.loading-box::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 2px solid #00ffff;
+  border-radius: 6px;
+  opacity: 0.8;
+}
+
+.loading-box::before {
+  filter: blur(4px);
+  animation: glowPulse 2s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.loading-box::after {
+  border-width: 3px;
+  filter: blur(8px);
+  animation: trailEffect 1.5s ease-out infinite;
+  transform-origin: left;
+}
+
+/* Typing Loading Animation */
+@keyframes typeLoading {
+  0% {
+    content: "loading";
+  }
+  25% {
+    content: "loading.";
+  }
+  50% {
+    content: "loading..";
+  }
+  75% {
+    content: "loading...";
+  }
+  100% {
+    content: "loading";
+  }
+}
+
+#status.loading {
+  position: relative;
+  color: #00ffff;
+}
+
+#status.loading::after {
+  content: "";
+  animation: typeLoading 1.5s steps(1) infinite;
+  position: absolute;
+  left: 0;
+  color: inherit;
+}
+
+/* Other Utilities */
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.msg {
+  /* Keeping the box design for readability, but TRON-themed */
+  background: #000000;
+  border: 1px solid #00ffff22;
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin: 6px 0;
+  box-shadow: 0 0 3px #00ffff1a;
+}
+#status.muted {
+  color: #77ffff;
+  font-size: 0.9em;
+}
+
+/* @keyframes blink is retained from your original CSS and will make the glow effect pulse */
+@keyframes blink {
+  /* ... */
+}
+
+/* Response bubble for better readability */
+.msg {
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 6px 0;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+}
+
+/* New CSS for animated dots */
+@keyframes blink {
+  0% {
+    opacity: 0.2;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
+.loading-dot {
+  font-size: 1.5em;
+  animation-name: blink;
+  animation-duration: 1.4s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+.loading-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.loading-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}

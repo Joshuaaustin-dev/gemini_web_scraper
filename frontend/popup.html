@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Gemini Chat</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body>
+    <h2>Gemini Chat</h2>
+    <textarea id="prompt" placeholder="Ask me anything..."></textarea>
+    <div class="controls">
+      <button id="send-btn">Send</button>
+      <button id="summarize-btn">Summarize Page</button>
+      <button id="stop-btn" disabled>Stop</button>
+      <button id="clear-btn">Clear</button>
+    </div>
+    <p>
+      <strong>Response:</strong> <span id="status" class="muted">idle</span>
+    </p>
+    <div id="response">Waiting for a prompt...</div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
