@@ -223,6 +223,20 @@ button[disabled] {
   gap: 8px;
   margin-bottom: 8px;
 }
+
+/* Response Controls */
+.response-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  justify-content: flex-end;
+}
+
+.response-controls button {
+  padding: 6px 12px;
+  font-size: 12px;
+  min-width: 80px;
+}
 .msg {
   /* Keeping the box design for readability, but TRON ARES-themed */
   background: #000000;

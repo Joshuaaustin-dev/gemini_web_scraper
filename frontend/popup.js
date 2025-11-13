@@ -21,6 +21,7 @@ let conversationHistory = [];
 let speechSynthesis = null;
 let currentUtterance = null;
 let isSpeaking = false;
+let isIntentionallyStopping = false; // Track if we're manually stopping
 
 // Typing animation tuning (adjust for speed/feel)
 const TYPING_BATCH = 4; // characters processed per tick
@@ -240,6 +241,12 @@ async function sendPrompt(overridePrompt, hideUserMessage = false) {
         stopButton.disabled = true;
         abortController = null;
         stopTyper();
+        
+        // Disable response controls on error
+        if (responseDiv.textContent.includes('Error') || responseDiv.textContent.includes('Cancelled')) {
+            ttsButton.disabled = true;
+            copyButton.disabled = true;
+        }
     }
 }
 
@@ -310,9 +317,12 @@ async function summarizeCurrentPage() {
 document.getElementById('summarize-btn').addEventListener('click', summarizeCurrentPage);
 
 sendButton.addEventListener('click', () => {
+    stopTextToSpeech(); // Stop any ongoing speech when sending new message
     typeQueue = [];
     stopTyper();
     responseDiv.textContent = '';
+    ttsButton.disabled = true;
+    copyButton.disabled = true;
     sendPrompt();
 });
 
@@ -323,14 +333,193 @@ stopButton.addEventListener('click', () => {
 
 clearButton.addEventListener('click', () => {
     if (abortController) abortController.abort();
+    stopTextToSpeech(); // Stop any ongoing speech
     typeQueue = [];
     stopTyper();
     responseDiv.textContent = '';
     conversationHistory = []; // Clear conversation history
-    console.log('🗑️ Conversation History cleared');
+    console.log('Conversation History cleared');
     setStatus('idle');
     sendButton.disabled = false;
     stopButton.disabled = true;
+    ttsButton.disabled = true;
+    copyButton.disabled = true;
+});
+
+/**
+ * Text-to-Speech functionality
+ */
+function stopTextToSpeech() {
+    if (speechSynthesis && (isSpeaking || speechSynthesis.speaking)) {
+        isIntentionallyStopping = true; // Mark that we're intentionally stopping
+        speechSynthesis.cancel();
+        isSpeaking = false;
+        currentUtterance = null;
+        ttsButton.textContent = 'Read';
+        ttsButton.title = 'Read response aloud';
+        // Reset flag after a short delay
+        setTimeout(() => {
+            isIntentionallyStopping = false;
+        }, 100);
+    }
+}
+
+function startTextToSpeech() {
+    const text = responseDiv.textContent.trim();
+    if (!text || text === 'Waiting for a prompt...') {
+        return;
+    }
+
+    // Check if browser supports speech synthesis
+    if (!('speechSynthesis' in window)) {
+        alert('Your browser does not support text-to-speech.');
+        return;
+    }
+
+    if (isSpeaking) {
+        // If already speaking, stop it
+        stopTextToSpeech();
+        return;
+    }
+
+    // Stop any existing speech
+    stopTextToSpeech();
+
+    // Create new utterance
+    speechSynthesis = window.speechSynthesis;
+    currentUtterance = new SpeechSynthesisUtterance(text);
+    
+    // Configure voice settings
+    currentUtterance.rate = 1.0; // Normal speed
+    currentUtterance.pitch = 1.0; // Normal pitch
+    currentUtterance.volume = 1.0; // Full volume
+
+    // Try to use a natural-sounding voice
+    const voices = speechSynthesis.getVoices();
+    const preferredVoices = voices.filter(v => 
+        v.lang.includes('en') && (v.name.includes('Natural') || v.name.includes('Neural'))
+    );
+    if (preferredVoices.length > 0) {
+        currentUtterance.voice = preferredVoices[0];
+    } else if (voices.length > 0) {
+        // Fallback to first English voice
+        const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+        currentUtterance.voice = englishVoices.length > 0 ? englishVoices[0] : voices[0];
+    }
+
+    // Event handlers
+    currentUtterance.onstart = () => {
+        isSpeaking = true;
+        isIntentionallyStopping = false; // Reset flag when starting
+        ttsButton.textContent = 'Stop';
+        ttsButton.title = 'Stop reading';
+    };
+
+    currentUtterance.onend = () => {
+        isSpeaking = false;
+        currentUtterance = null;
+        ttsButton.textContent = 'Read';
+        ttsButton.title = 'Read response aloud';
+    };
+
+    currentUtterance.onerror = (event) => {
+        // Don't show error if we intentionally stopped it
+        if (isIntentionallyStopping) {
+            isSpeaking = false;
+            currentUtterance = null;
+            return;
+        }
+        
+        // Only show error for actual errors (not cancellations)
+        if (event.error !== 'interrupted' && event.error !== 'canceled') {
+            console.error('Speech synthesis error:', event);
+            isSpeaking = false;
+            currentUtterance = null;
+            ttsButton.textContent = 'Read';
+            ttsButton.title = 'Read response aloud';
+            alert('Error reading text. Please try again.');
+        } else {
+            // Just reset state for interruptions/cancellations
+            isSpeaking = false;
+            currentUtterance = null;
+            ttsButton.textContent = 'Read';
+            ttsButton.title = 'Read response aloud';
+        }
+    };
+
+    // Start speaking
+    speechSynthesis.speak(currentUtterance);
+}
+
+/**
+ * Copy response to clipboard
+ */
+async function copyResponseToClipboard() {
+    const text = responseDiv.textContent.trim();
+    if (!text || text === 'Waiting for a prompt...') {
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(text);
+        // Visual feedback
+        const originalText = copyButton.textContent;
+        copyButton.textContent = 'Copied!';
+        copyButton.style.color = '#00ff00';
+        setTimeout(() => {
+            copyButton.textContent = originalText;
+            copyButton.style.color = '';
+        }, 2000);
+    } catch (err) {
+        console.error('Failed to copy text:', err);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            copyButton.textContent = 'Copied!';
+            setTimeout(() => {
+                copyButton.textContent = 'Copy';
+            }, 2000);
+        } catch (e) {
+            alert('Failed to copy text. Please select and copy manually.');
+        }
+        document.body.removeChild(textArea);
+    }
+}
+
+// TTS and Copy button event listeners
+ttsButton.addEventListener('click', startTextToSpeech);
+copyButton.addEventListener('click', copyResponseToClipboard);
+
+// Load voices when available (some browsers need this)
+if ('speechSynthesis' in window) {
+    speechSynthesis.onvoiceschanged = () => {
+        // Voices loaded
+    };
+}
+
+// Keyboard shortcuts
+promptInput.addEventListener('keydown', (e) => {
+    // Enter to send (Shift+Enter for new line)
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (!sendButton.disabled) {
+            sendButton.click();
+        }
+    }
+    // Escape to stop
+    if (e.key === 'Escape') {
+        if (!stopButton.disabled) {
+            stopButton.click();
+        } else if (isSpeaking) {
+            stopTextToSpeech();
+        }
+    }
 });
 
 // Initialize UI state
