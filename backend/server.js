@@ -16,11 +16,23 @@ app.use(express.json());
 // Define the API endpoint for the Extension
 app.post('/api/gemini', async (req, res) => {
     try {
-        const { prompt } = req.body;
+        const { prompt, conversationHistory } = req.body;
 
         if (!prompt) {
             return res.status(400).json({ error: 'Prompt is required' });
         }
+
+        // Build conversation history for context
+        let history = [];
+        if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
+            history = [...conversationHistory];
+        }
+        
+        // Add the current user message
+        history.push({
+            role: 'user',
+            parts: [{ text: prompt }]
+        });
 
         // Set the response header for streaming
         // Use no-cache and disable buffering to improve realtime delivery
@@ -67,13 +79,12 @@ app.post('/api/gemini', async (req, res) => {
         }
 
         // Generate content stream for realtime output
-        // Instruct the model to be short and precise (approx 40-60 words)
+        // Pass full conversation history for context
         const stream = await ai.models.generateContentStream({
             model: 'gemini-2.5-flash',
-            contents: prompt,
+            contents: history, // Pass full conversation history
             config: {
-                systemInstruction: "You are a concise, helpful assistant. Provide a short, accurate answer in about 80-100 words. Avoid filler.",
-                // lower token budget to encourage short replies
+                systemInstruction: "You are a helpful AI assistant. You can summarize web pages and answer questions about them. Be concise but thorough when needed. When asked about a summarized page, use the context from the conversation history.",
             }
         });
 

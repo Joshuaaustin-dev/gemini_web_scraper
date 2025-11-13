@@ -5,11 +5,22 @@ const sendButton = document.getElementById('send-btn');
 const stopButton = document.getElementById('stop-btn');
 const clearButton = document.getElementById('clear-btn');
 const statusSpan = document.getElementById('status');
+const ttsButton = document.getElementById('tts-btn');
+const copyButton = document.getElementById('copy-btn');
 
 // Streaming and typing states
 let abortController = null;
 let typeQueue = [];
 let typerInterval = null;
+
+// Session-based conversation history (resets when popup closes)
+// Format: [{role: 'user'|'model', parts: [{text: string}]}]
+let conversationHistory = [];
+
+// Text-to-speech state
+let speechSynthesis = null;
+let currentUtterance = null;
+let isSpeaking = false;
 
 // Typing animation tuning (adjust for speed/feel)
 const TYPING_BATCH = 4; // characters processed per tick
@@ -95,14 +106,25 @@ function cleanChunk(raw) {
  * Send a prompt to the local Gemini proxy and stream the response into the UI.
  * If `overridePrompt` is provided, it will be sent directly and the textarea
  * will be disabled while the request is in flight.
- * @param {string} [overridePrompt]
+ * @param {string} [overridePrompt] - Optional prompt to send (for summarize)
+ * @param {boolean} [hideUserMessage] - If true, don't show user message in UI (for summarize)
  */
-async function sendPrompt(overridePrompt) {
+async function sendPrompt(overridePrompt, hideUserMessage = false) {
     const prompt = (typeof overridePrompt === 'string' ? overridePrompt : promptInput.value).trim();
     if (!prompt) {
         responseDiv.textContent = 'Please enter a question.';
         return;
     }
+
+    // Add user message to conversation history
+    conversationHistory.push({
+        role: 'user',
+        parts: [{ text: prompt }]
+    });
+    
+    // Debug: Log conversation history
+    console.log('Conversation History (after adding user message):', conversationHistory);
+    console.log('History length:', conversationHistory.length);
 
     // Prepare UI for streaming
     responseDiv.textContent = '';
@@ -122,12 +144,21 @@ async function sendPrompt(overridePrompt) {
     stopButton.disabled = false;
 
     abortController = new AbortController();
+    let fullResponse = '';
 
+    // Prepare history to send (without the current message we just added)
+    const historyToSend = conversationHistory.slice(0, -1);
+    console.log('Sending to API - History length:', historyToSend.length);
+    console.log('Sending to API - Current prompt:', prompt);
+    
     try {
         const resp = await fetch('http://localhost:3000/api/gemini', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt }),
+            body: JSON.stringify({ 
+                prompt,
+                conversationHistory: historyToSend // Send history without current message
+            }),
             signal: abortController.signal
         });
 
@@ -149,7 +180,10 @@ async function sendPrompt(overridePrompt) {
             if (value) {
                 let chunkText = decoder.decode(value, { stream: true });
                 chunkText = cleanChunk(chunkText);
-                if (chunkText) enqueueText(chunkText);
+                if (chunkText) {
+                    enqueueText(chunkText);
+                    fullResponse += chunkText;
+                }
             }
         }
 
@@ -163,7 +197,28 @@ async function sendPrompt(overridePrompt) {
             }, 50);
         });
 
+        // Add model response to conversation history
+        if (fullResponse.trim()) {
+            conversationHistory.push({
+                role: 'model',
+                parts: [{ text: fullResponse.trim() }]
+            });
+            
+            // Limit history to last 10 messages to keep it manageable
+            if (conversationHistory.length > 10) {
+                conversationHistory = conversationHistory.slice(-10);
+            }
+            
+            // Debug: Log conversation history
+            console.log('🤖 Conversation History (after adding AI response):', conversationHistory);
+            console.log('📊 History length:', conversationHistory.length);
+        }
+
         setStatus('done');
+        
+        // Enable response control buttons
+        ttsButton.disabled = false;
+        copyButton.disabled = false;
 
     } catch (err) {
         if (err.name === 'AbortError') {
@@ -229,20 +284,23 @@ async function summarizeCurrentPage() {
     }
 
     if (response && response.content) {
+        // Reduced content size for faster processing
         const MAX_SCRAPE = 5000;
         let textToSummarize = response.content || '';
         if (textToSummarize.length > MAX_SCRAPE) {
             textToSummarize = textToSummarize.slice(0, MAX_SCRAPE) + '\n\n[...truncated]';
         }
 
-        const prompt = `Please summarize the following article concisely (max 100 words):\n\n${textToSummarize}`;
+        // Concise prompt for quick summary
+        const prompt = `Summarize this article in 3-4 sentences:\n\n${textToSummarize}`;
 
-        // Reset UI queue and start streaming the summary. The prompt is passed
-        // directly so it is never shown in the textarea.
+        // Reset UI queue and start streaming the summary
         typeQueue = [];
         stopTyper();
         responseDiv.textContent = '';
-        sendPrompt(prompt);
+        
+        // Send prompt (hideUserMessage=true so we don't show the full prompt in UI)
+        sendPrompt(prompt, true);
     } else {
         alert('Could not extract content from the page or the page returned empty content.');
     }
@@ -268,6 +326,8 @@ clearButton.addEventListener('click', () => {
     typeQueue = [];
     stopTyper();
     responseDiv.textContent = '';
+    conversationHistory = []; // Clear conversation history
+    console.log('🗑️ Conversation History cleared');
     setStatus('idle');
     sendButton.disabled = false;
     stopButton.disabled = true;
@@ -275,3 +335,29 @@ clearButton.addEventListener('click', () => {
 
 // Initialize UI state
 setStatus('idle');
+
+// Debug helper: Expose conversation history to window for easy inspection
+window.getConversationHistory = () => {
+    console.log('Current Conversation History:');
+    console.log('Total messages:', conversationHistory.length);
+    conversationHistory.forEach((msg, index) => {
+        console.log(`\n[${index + 1}] ${msg.role.toUpperCase()}:`);
+        console.log(msg.parts[0].text.substring(0, 100) + (msg.parts[0].text.length > 100 ? '...' : ''));
+    });
+    return conversationHistory;
+};
+
+// Debug helper: Show formatted history in console
+window.showHistory = () => {
+    console.log('Full Conversation History:');
+    console.table(conversationHistory.map((msg, i) => ({
+        index: i + 1,
+        role: msg.role,
+        preview: msg.parts[0].text.substring(0, 50) + '...',
+        length: msg.parts[0].text.length
+    })));
+};
+
+console.log('*** Debug helpers available:');
+console.log('  - getConversationHistory() - Returns and logs the full history');
+console.log('  - showHistory() - Shows a formatted table of the history');

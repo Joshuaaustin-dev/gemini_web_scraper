@@ -11,6 +11,7 @@ function extractMainContent() {
         .replace(/\s*\n\s*\n\s*/g, '\n\n') 
         .trim();
     // Limit the returned text to a safe size to avoid sending huge payloads
+    // Reduced for faster processing
     const MAX_SCRAPE = 5000;
     if (cleanedText.length > MAX_SCRAPE) {
         return cleanedText.slice(0, MAX_SCRAPE) + '\n\n[...truncated]';
