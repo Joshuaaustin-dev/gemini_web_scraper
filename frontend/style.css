@@ -1,292 +1,557 @@
-/* TRON: Legacy Style Overrides */
-
-/* TRON ARES Red color variables */
-:root {
-  --tron-bg: #070306; /* near-black base */
-  --tron-panel: #000000; /* panel/input backgrounds */
-  --tron-red: #ff0033; /* TRON ARES primary red */
-  --tron-red-glow: #ff3366; /* lighter/glow red */
-  --tron-red-weak: #ff003322; /* translucent red for borders */
-  --tron-red-40: #ff003340; /* semi-transparent for shadows */
-  --tron-text: #ffecec; /* warm off-white text */
-}
-
-/* Global Body and Font */
-body {
-  width: 350px; /* Slightly wider for better UI */
-  padding: 16px;
-  font-family: "Consolas", "Monaco", monospace; /* Techy monospace font */
-  background-color: var(--tron-bg); /* Very dark base */
-  color: var(--tron-text); /* Warm light text */
-  line-height: 1.4;
-  border: 1px solid var(--tron-red-weak); /* Subtle red border around the popup */
-  border-radius: 6px;
-}
-
-/* Headings/Titles (If applicable, not in original CSS, but good practice) */
-h2 {
-  color: var(--tron-red); /* Neon Red Accent */
-  text-shadow: 0 0 6px var(--tron-red-glow); /* Glow effect */
-  margin-top: 0;
-}
-
-/* Input/Textarea Styling (The Grid Console) */
-textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 12px;
-  margin-bottom: 16px;
+* {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
-
-  /* TRON Styling */
-  background-color: var(--tron-panel); /* Pure black input background */
-  color: var(--tron-red); /* Neon typing color (red) */
-  border: 1px solid var(--tron-red-weak); /* Light red border */
-  border-radius: 4px;
-  resize: vertical;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-textarea:focus {
-  border-color: var(--tron-red); /* Intense red border on focus */
-  box-shadow: 0 0 12px var(--tron-red-40); /* Subtle red glow on focus */
 }
 
-/* Response Area (The Output Display) */
-#response {
-  margin-top: 16px;
-  padding: 12px;
-  min-height: 50px;
-  background-color: var(--tron-bg); /* Match body background */
-  color: var(--tron-text);
-  border: 1px solid var(--tron-red-weak);
-  border-radius: 4px;
-  white-space: pre-wrap;
-  box-shadow: 0 0 8px var(--tron-red-40); /* Light red box shadow for glow */
+:root {
+  --primary-cyan: #00d4ff;
+  --primary-magenta: #ff00ff;
+  --accent-purple: #ff66ff;
+  --accent-amber: #ffaa00;
+  --error-red: #ff0044;
+  --success-green: #00ff88;
+  --bg-dark: #0a0e1a;
+  --bg-medium: #1a1f35;
+  --text-primary: #00d4ff;
+  --text-secondary: #66a3ff;
+  --text-muted: rgba(0, 212, 255, 0.5);
 }
 
-/* Button Styling (The Call to Action) */
-button {
-  padding: 10px 14px;
-  background-color: var(--tron-bg); /* Dark background */
-  color: var(--tron-red); /* Neon red text */
-  border: 1px solid var(--tron-red); /* Strong neon red border */
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 14px;
-  text-transform: uppercase;
-  transition: background-color 0.2s, box-shadow 0.2s;
-}
-button:hover {
-  background-color: var(--tron-red-weak); /* Very subtle red glow on hover */
-  box-shadow: 0 0 16px var(--tron-red); /* Stronger red glow */
-}
-button:active {
-  background-color: #ff003344; /* Pressed effect (red translucent) */
-}
-button[disabled] {
-  opacity: 0.5;
-  color: #e0ffff; /* Keep the color light */
-  border-color: #e0ffff33;
-  background-color: #0a1c29;
-  box-shadow: none;
-  cursor: default;
-}
-
-/* TRON Light Cycle Loading Animation */
-@keyframes lightCycle {
-  0% {
-    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
-    border-color: var(--tron-red);
-  }
-  15% {
-    clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
-    border-color: var(--tron-red-glow);
-  }
-  35% {
-    clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 0);
-    border-color: var(--tron-red);
-  }
-  50% {
-    clip-path: polygon(100% 0, 100% 100%, 100% 100%, 100% 100%);
-    border-color: var(--tron-red-glow);
-  }
-  65% {
-    clip-path: polygon(100% 100%, 100% 100%, 0 100%, 100% 100%);
-    border-color: var(--tron-red);
-  }
-  85% {
-    clip-path: polygon(0 100%, 0 100%, 0 0, 0 100%);
-    border-color: var(--tron-red-glow);
-  }
-  100% {
-    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
-    border-color: var(--tron-red);
-  }
-}
-
-@keyframes trailEffect {
-  0% {
-    transform: scaleX(0.3);
-    opacity: 1;
-  }
-  100% {
-    transform: scaleX(1);
-    opacity: 0;
-  }
-}
-
-@keyframes glowPulse {
-  0% {
-    opacity: 0.3;
-    filter: blur(3px);
-  }
-  50% {
-    opacity: 1;
-    filter: blur(5px);
-  }
-  100% {
-    opacity: 0.3;
-    filter: blur(3px);
-  }
-}
-
-.loading-box {
-  position: absolute;
-  inset: -2px;
-  border: 2px solid var(--tron-red);
-  border-radius: 6px;
-  animation: lightCycle 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  pointer-events: none;
-  box-shadow: 0 0 12px var(--tron-red-40);
-}
-
-.loading-box::before,
-.loading-box::after {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border: 2px solid var(--tron-red);
-  border-radius: 6px;
-  opacity: 0.8;
-}
-
-.loading-box::before {
-  filter: blur(4px);
-  animation: glowPulse 2s ease-in-out infinite;
-  opacity: 0.7;
-}
-
-.loading-box::after {
-  border-width: 3px;
-  filter: blur(8px);
-  animation: trailEffect 1.5s ease-out infinite;
-  transform-origin: left;
-}
-
-/* Typing Loading Animation */
-@keyframes typeLoading {
-  0% {
-    content: "loading";
-  }
-  25% {
-    content: "loading.";
-  }
-  50% {
-    content: "loading..";
-  }
-  75% {
-    content: "loading...";
-  }
-  100% {
-    content: "loading";
-  }
-}
-
-#status.loading {
+body {
+  width: 400px;
+  min-height: 500px;
+  font-family: "Segoe UI", "Roboto", -apple-system, sans-serif;
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-medium) 100%);
+  color: var(--text-primary);
+  padding: 20px;
   position: relative;
-  color: var(--tron-red);
+  overflow-x: hidden;
 }
 
-#status.loading::after {
+/* Animated background grid */
+body::before {
   content: "";
-  animation: typeLoading 1.5s steps(1) infinite;
-  position: absolute;
+  position: fixed;
+  top: 0;
   left: 0;
-  color: inherit;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(
+      rgba(0, 212, 255, 0.03) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  animation: gridMove 20s linear infinite;
+  pointer-events: none;
+  z-index: 0;
 }
 
-/* Other Utilities */
+@keyframes gridMove {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(20px);
+  }
+}
+
+/* Scan line effect */
+body::after {
+  content: "";
+  position: fixed;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 212, 255, 0.1) 50%,
+    transparent 100%
+  );
+  animation: scan 8s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes scan {
+  0% {
+    top: -100%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+/* All content above background effects */
+h2,
+textarea,
+button,
+p,
+div {
+  position: relative;
+  z-index: 2;
+}
+
+/* ============ HEADER ============ */
+h2 {
+  font-size: 22px;
+  font-weight: 300;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--primary-cyan);
+  text-align: center;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.8);
+  animation: glow 2s ease-in-out infinite alternate;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--primary-cyan);
+  box-shadow: 0 2px 20px rgba(0, 212, 255, 0.3);
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.8),
+      0 0 20px rgba(0, 212, 255, 0.4);
+  }
+  to {
+    text-shadow: 0 0 20px rgba(0, 212, 255, 1), 0 0 30px rgba(0, 212, 255, 0.6);
+  }
+}
+
+/* ============ TEXTAREA ============ */
+#prompt {
+  width: 100%;
+  min-height: 80px;
+  max-height: 180px;
+  padding: 12px;
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid var(--primary-cyan);
+  color: #e0f4ff;
+  font-size: 14px;
+  resize: vertical;
+  font-family: "Segoe UI", "Roboto", -apple-system, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.1);
+  border-radius: 2px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+#prompt:focus {
+  outline: none;
+  background: rgba(0, 212, 255, 0.1);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.4),
+    inset 0 0 15px rgba(0, 212, 255, 0.2);
+  border-color: #00ffff;
+  transform: scale(1.01);
+}
+
+#prompt::placeholder {
+  color: rgba(0, 212, 255, 0.4);
+}
+
+/* ============ CONTROLS ============ */
 .controls {
   display: flex;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
-/* Response Controls */
+/* ============ BUTTONS ============ */
+button {
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid var(--primary-cyan);
+  color: var(--primary-cyan);
+  padding: 10px 16px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  font-weight: 500;
+  flex: 1;
+  min-width: 80px;
+}
+
+/* Ripple effect */
+button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(0, 212, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+button:hover {
+  background: rgba(0, 212, 255, 0.2);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.5),
+    inset 0 0 10px rgba(0, 212, 255, 0.2);
+  transform: translateY(-2px) scale(1.02);
+  border-color: #00ffff;
+}
+
+button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+button:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.8);
+}
+
+/* Send button - Primary variant */
+#send-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.2),
+    rgba(0, 212, 255, 0.3)
+  );
+  font-weight: 600;
+  border-width: 2px;
+}
+
+#send-btn:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.3),
+    rgba(0, 212, 255, 0.4)
+  );
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.6),
+    inset 0 0 15px rgba(0, 212, 255, 0.3);
+}
+
+/* Stop button - Danger variant */
+#stop-btn {
+  background: rgba(255, 0, 68, 0.1);
+  border-color: var(--error-red);
+  color: var(--error-red);
+}
+
+#stop-btn::before {
+  background: rgba(255, 0, 68, 0.3);
+}
+
+#stop-btn:hover:not(:disabled) {
+  background: rgba(255, 0, 68, 0.2);
+  border-color: #ff3366;
+  box-shadow: 0 0 15px rgba(255, 0, 68, 0.5),
+    inset 0 0 10px rgba(255, 0, 68, 0.2);
+}
+
+/* Disabled state */
+button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  border-color: #004d5c;
+  color: #004d5c;
+  transform: none;
+  box-shadow: none;
+}
+
+button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* ============ STATUS ============ */
+p {
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+
+p strong {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--primary-cyan);
+}
+
+#status {
+  font-family: monospace;
+  padding: 2px 6px;
+  background: rgba(0, 212, 255, 0.1);
+  border-radius: 2px;
+  font-size: 11px;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+#status.processing {
+  color: var(--accent-amber);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+#status.success {
+  color: var(--success-green);
+}
+
+#status.error {
+  color: var(--error-red);
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* ============ RESPONSE AREA ============ */
+#response {
+  min-height: 150px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 16px;
+  background: rgba(255, 0, 255, 0.05);
+  border: 1px solid var(--primary-magenta);
+  border-left: 3px solid var(--primary-magenta);
+  color: var(--accent-purple);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.2),
+    inset 0 0 10px rgba(255, 0, 255, 0.05);
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-magenta) rgba(10, 14, 26, 0.5);
+}
+
+#response::-webkit-scrollbar {
+  width: 6px;
+}
+
+#response::-webkit-scrollbar-track {
+  background: rgba(10, 14, 26, 0.5);
+  border-left: 1px solid rgba(255, 0, 255, 0.2);
+}
+
+#response::-webkit-scrollbar-thumb {
+  background: var(--primary-magenta);
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
+  border-radius: 3px;
+}
+
+#response::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-purple);
+}
+
+/* Response animation when updating */
+#response.updating {
+  animation: responseUpdate 0.3s ease-out;
+}
+
+@keyframes responseUpdate {
+  from {
+    opacity: 0.7;
+    transform: scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============ RESPONSE CONTROLS ============ */
 .response-controls {
   display: flex;
   gap: 8px;
-  margin-top: 8px;
-  justify-content: flex-end;
 }
 
 .response-controls button {
-  padding: 6px 12px;
-  font-size: 12px;
-  min-width: 80px;
-}
-.msg {
-  /* Keeping the box design for readability, but TRON ARES-themed */
-  background: #000000;
-  border: 1px solid var(--tron-red-weak);
-  border-radius: 4px;
-  padding: 8px 10px;
-  margin: 6px 0;
-  box-shadow: 0 0 4px var(--tron-red-40);
-}
-#status.muted {
-  color: var(--tron-red-glow);
-  font-size: 0.9em;
+  flex: 1;
+  min-width: 100px;
 }
 
-/* @keyframes blink is retained from your original CSS and will make the glow effect pulse */
-@keyframes blink {
-  /* ... */
+#tts-btn {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: var(--success-green);
+  color: var(--success-green);
 }
 
-/* Response bubble for better readability */
-.msg {
-  background: #fff;
-  border-radius: 8px;
-  padding: 8px 10px;
-  margin: 6px 0;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+#tts-btn::before {
+  background: rgba(0, 255, 136, 0.3);
 }
 
-/* New CSS for animated dots */
-@keyframes blink {
+#tts-btn:hover:not(:disabled) {
+  background: rgba(0, 255, 136, 0.2);
+  border-color: #33ffaa;
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.5),
+    inset 0 0 10px rgba(0, 255, 136, 0.2);
+}
+
+#copy-btn {
+  background: rgba(255, 170, 0, 0.1);
+  border-color: var(--accent-amber);
+  color: var(--accent-amber);
+}
+
+#copy-btn::before {
+  background: rgba(255, 170, 0, 0.3);
+}
+
+#copy-btn:hover:not(:disabled) {
+  background: rgba(255, 170, 0, 0.2);
+  border-color: #ffbb33;
+  box-shadow: 0 0 15px rgba(255, 170, 0, 0.5),
+    inset 0 0 10px rgba(255, 170, 0, 0.2);
+}
+
+/* Success animation for copy button */
+#copy-btn.copied {
+  background: rgba(0, 255, 136, 0.2);
+  border-color: var(--success-green);
+  color: var(--success-green);
+  animation: successPulse 0.5s ease-out;
+}
+
+@keyframes successPulse {
   0% {
-    opacity: 0.2;
+    transform: scale(1);
   }
-  20% {
-    opacity: 1;
+  50% {
+    transform: scale(1.05);
   }
   100% {
-    opacity: 0.2;
+    transform: scale(1);
   }
 }
-.loading-dot {
-  font-size: 1.5em;
-  animation-name: blink;
-  animation-duration: 1.4s;
-  animation-iteration-count: infinite;
-  animation-fill-mode: both;
+
+/* ============ LOADING STATES ============ */
+.loading {
+  position: relative;
 }
-.loading-dot:nth-child(2) {
-  animation-delay: 0.2s;
+
+.loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--primary-cyan);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  transform: translate(-50%, -50%);
 }
-.loading-dot:nth-child(3) {
-  animation-delay: 0.4s;
+
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* ============ UTILITY CLASSES ============ */
+.hidden {
+  display: none !important;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============ RESPONSIVE ADJUSTMENTS ============ */
+@media (max-width: 380px) {
+  body {
+    padding: 15px;
+  }
+
+  .controls {
+    flex-direction: column;
+  }
+
+  button {
+    min-width: 100%;
+  }
+}
+
+/* ============ ACCESSIBILITY ============ */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  body::before,
+  body::after {
+    animation: none;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+button:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--primary-cyan);
+  outline-offset: 2px;
+}
+
+/* ============ CUSTOM SCROLLBAR FOR BODY ============ */
+body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-cyan) var(--bg-dark);
+}
+
+body::-webkit-scrollbar {
+  width: 8px;
+}
+
+body::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+body::-webkit-scrollbar-thumb {
+  background: var(--primary-cyan);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.8);
+  border-radius: 4px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: #00ffff;
 }
