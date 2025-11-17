@@ -87,8 +87,6 @@ let speechSynthesis = null;
 let currentUtterance = null;
 let isSpeaking = false;
 let isIntentionallyStopping = false; // Track if we're manually stopping
-// Cached available voices (populated when the browser provides them)
-let availableVoices = [];
 
 // Typing animation tuning (adjust for speed/feel)
 const TYPING_BATCH = 4; // characters processed per tick
@@ -443,22 +441,87 @@ function startTextToSpeech() {
         return;
     }
 
+    // Check if browser supports speech synthesis
+    if (!('speechSynthesis' in window)) {
+        alert('Your browser does not support text-to-speech.');
+        return;
+    }
 
+    if (isSpeaking) {
+        stopTextToSpeech();
+        return;
+    }
 
+    stopTextToSpeech();
 
+    speechSynthesis = window.speechSynthesis;
+    currentUtterance = new SpeechSynthesisUtterance(text);
+    
+    // MORE HUMAN settings - slower, natural pitch
+    currentUtterance.rate = 0.95;  // Slightly slower = more natural and clear
+    currentUtterance.pitch = 1.0;  // Normal pitch = less robotic
+    currentUtterance.volume = 1.0;
 
-
-
-
-
-        // (Old logic removed; using pickBestVoice below)
-    // Start selecting voice (async) but don't await long before speaking
-    selectVoiceForUtterance(currentUtterance).catch(e => console.warn('Voice selection error', e));
+    // Get voices and prioritize the MOST natural sounding ones
+    const voices = speechSynthesis.getVoices();
+    
+    // Priority list of the best natural voices across platforms
+    const bestVoiceNames = [
+        'Samantha',           // macOS - extremely natural
+        'Google UK English Female', // Chrome - very natural
+        'Google US English',  // Chrome - good quality
+        'Microsoft Zira',     // Windows - natural female
+        'Microsoft David',    // Windows - natural male
+        'Alex',              // macOS - good male voice
+        'Karen',             // macOS - good female voice
+        'Moira',             // macOS - Irish accent, very natural
+        'Tessa',             // macOS - South African, very natural
+    ];
+    
+    // Try to find the best voice from priority list
+    let selectedVoice = null;
+    for (const voiceName of bestVoiceNames) {
+        selectedVoice = voices.find(v => v.name === voiceName);
+        if (selectedVoice) break;
+    }
+    
+    // If no exact match, look for Neural/Natural/Premium voices
+    if (!selectedVoice) {
+        const premiumVoices = voices.filter(v => 
+            v.lang.startsWith('en') && 
+            (v.name.includes('Neural') || 
+             v.name.includes('Natural') || 
+             v.name.includes('Premium') ||
+             v.name.includes('Enhanced') ||
+             v.name.includes('Google'))
+        );
+        
+        // Prefer female voices as they often sound more natural
+        const femaleVoices = premiumVoices.filter(v => 
+            v.name.includes('Female') || 
+            v.name.includes('Zira') || 
+            v.name.includes('Samantha') ||
+            v.name.includes('Karen')
+        );
+        
+        selectedVoice = femaleVoices[0] || premiumVoices[0];
+    }
+    
+    // Final fallback to any English voice
+    if (!selectedVoice) {
+        const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+        selectedVoice = englishVoices[0] || voices[0];
+    }
+    
+    if (selectedVoice) {
+        currentUtterance.voice = selectedVoice;
+        console.log('Using voice:', selectedVoice.name); // Helpful for debugging
+    }
 
     // Event handlers
     currentUtterance.onstart = () => {
         isSpeaking = true;
-        isIntentionallyStopping = false; // Reset flag when starting
+        isIntentionallyStopping = false;
         ttsButton.textContent = 'Stop';
         ttsButton.title = 'Stop reading';
     };
@@ -471,14 +534,12 @@ function startTextToSpeech() {
     };
 
     currentUtterance.onerror = (event) => {
-        // Don't show error if we intentionally stopped it
         if (isIntentionallyStopping) {
             isSpeaking = false;
             currentUtterance = null;
             return;
         }
         
-        // Only show error for actual errors (not cancellations)
         if (event.error !== 'interrupted' && event.error !== 'canceled') {
             console.error('Speech synthesis error:', event);
             isSpeaking = false;
@@ -487,7 +548,6 @@ function startTextToSpeech() {
             ttsButton.title = 'Read response aloud';
             alert('Error reading text. Please try again.');
         } else {
-            // Just reset state for interruptions/cancellations
             isSpeaking = false;
             currentUtterance = null;
             ttsButton.textContent = 'Read';
@@ -495,7 +555,6 @@ function startTextToSpeech() {
         }
     };
 
-    // Start speaking
     speechSynthesis.speak(currentUtterance);
 }
 
@@ -548,24 +607,14 @@ copyButton.addEventListener('click', copyResponseToClipboard);
 if ('speechSynthesis' in window) {
     // Initialize speechSynthesis variable to the browser's implementation
     speechSynthesis = window.speechSynthesis;
-    // Populate cached voices when they become available
-    const populateVoices = () => {
-        try {
-            availableVoices = speechSynthesis.getVoices() || [];
-            console.log('TTS voices available:', availableVoices.map(v => v.name + '|' + v.lang));
-        } catch (e) {
-            // ignore
-        }
-    };
-
+    // Some browsers load voices asynchronously; register a no-op handler to
+    // trigger the browser's internal events without assuming `speechSynthesis`
+    // was already assigned.
     try {
-        speechSynthesis.addEventListener('voiceschanged', populateVoices);
+        speechSynthesis.onvoiceschanged = () => { /* voices loaded */ };
     } catch (e) {
-        try { speechSynthesis.onvoiceschanged = populateVoices; } catch (e2) { /* ignore */ }
+        // Some environments may not allow setting this; ignore.
     }
-
-    // Immediately try to populate in case voices are already loaded
-    populateVoices();
 }
 
 // Keyboard shortcuts
