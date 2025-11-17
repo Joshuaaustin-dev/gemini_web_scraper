@@ -30,3 +30,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     }
 })
+
+// Ensure stored conversation for this page is removed when the tab/page unloads.
+// This ties the lifetime of the saved conversation to the tab being open.
+try {
+    const key = `geminiHistory_${encodeURIComponent(location.href)}`;
+    window.addEventListener('beforeunload', () => {
+        try {
+            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+                chrome.storage.local.remove([key]);
+            } else if (window.localStorage) {
+                localStorage.removeItem(key);
+            }
+        } catch (e) {
+            // ignore
+        }
+    });
+} catch (e) {
+    // ignore
+}

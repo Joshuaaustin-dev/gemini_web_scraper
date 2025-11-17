@@ -97,8 +97,8 @@ div {
 
 /* ============ HEADER ============ */
 h2 {
-  font-size: 28px;
-  font-weight: 300;
+  font-size: 32px;
+  font-weight: 500;
   letter-spacing: 4px;
   text-transform: uppercase;
   color: var(--primary-cyan);
@@ -113,6 +113,7 @@ h2 {
 
 #letters {
   font-size: 16px;
+  margin-left: -4px;
   margin-right: 10px;
   font-weight: 0;
   letter-spacing: normal;

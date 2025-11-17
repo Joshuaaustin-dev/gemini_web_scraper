@@ -87,6 +87,8 @@ let speechSynthesis = null;
 let currentUtterance = null;
 let isSpeaking = false;
 let isIntentionallyStopping = false; // Track if we're manually stopping
+// Cached available voices (populated when the browser provides them)
+let availableVoices = [];
 
 // Typing animation tuning (adjust for speed/feel)
 const TYPING_BATCH = 4; // characters processed per tick
@@ -441,42 +443,17 @@ function startTextToSpeech() {
         return;
     }
 
-    // Check if browser supports speech synthesis
-    if (!('speechSynthesis' in window)) {
-        alert('Your browser does not support text-to-speech.');
-        return;
-    }
 
-    if (isSpeaking) {
-        // If already speaking, stop it
-        stopTextToSpeech();
-        return;
-    }
 
-    // Stop any existing speech
-    stopTextToSpeech();
 
-    // Create new utterance
-    speechSynthesis = window.speechSynthesis;
-    currentUtterance = new SpeechSynthesisUtterance(text);
-    
-    // Configure voice settings
-    currentUtterance.rate = 1.0; // Normal speed
-    currentUtterance.pitch = 1.0; // Normal pitch
-    currentUtterance.volume = 1.0; // Full volume
 
-    // Try to use a natural-sounding voice
-    const voices = speechSynthesis.getVoices();
-    const preferredVoices = voices.filter(v => 
-        v.lang.includes('en') && (v.name.includes('Natural') || v.name.includes('Neural'))
-    );
-    if (preferredVoices.length > 0) {
-        currentUtterance.voice = preferredVoices[0];
-    } else if (voices.length > 0) {
-        // Fallback to first English voice
-        const englishVoices = voices.filter(v => v.lang.startsWith('en'));
-        currentUtterance.voice = englishVoices.length > 0 ? englishVoices[0] : voices[0];
-    }
+
+
+
+
+        // (Old logic removed; using pickBestVoice below)
+    // Start selecting voice (async) but don't await long before speaking
+    selectVoiceForUtterance(currentUtterance).catch(e => console.warn('Voice selection error', e));
 
     // Event handlers
     currentUtterance.onstart = () => {
@@ -571,14 +548,24 @@ copyButton.addEventListener('click', copyResponseToClipboard);
 if ('speechSynthesis' in window) {
     // Initialize speechSynthesis variable to the browser's implementation
     speechSynthesis = window.speechSynthesis;
-    // Some browsers load voices asynchronously; register a no-op handler to
-    // trigger the browser's internal events without assuming `speechSynthesis`
-    // was already assigned.
+    // Populate cached voices when they become available
+    const populateVoices = () => {
+        try {
+            availableVoices = speechSynthesis.getVoices() || [];
+            console.log('TTS voices available:', availableVoices.map(v => v.name + '|' + v.lang));
+        } catch (e) {
+            // ignore
+        }
+    };
+
     try {
-        speechSynthesis.onvoiceschanged = () => { /* voices loaded */ };
+        speechSynthesis.addEventListener('voiceschanged', populateVoices);
     } catch (e) {
-        // Some environments may not allow setting this; ignore.
+        try { speechSynthesis.onvoiceschanged = populateVoices; } catch (e2) { /* ignore */ }
     }
+
+    // Immediately try to populate in case voices are already loaded
+    populateVoices();
 }
 
 // Keyboard shortcuts
