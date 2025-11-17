@@ -1,15 +1,25 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Gemini Chat</title>
+    <title>Reasearch Overview Navigator</title>
     <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
   <body>
-    <h2>Gemini Chat</h2>
-    <textarea id="prompt" placeholder="Ask me anything..."></textarea>
+    <h2>
+      R<span id="letters">esearch</span>O<span id="letters">verview</span>N<span
+        id="letters"
+        >avigator</span
+      >
+    </h2>
+    <textarea
+      id="prompt"
+      placeholder="Ask me anything..."
+      maxlength="5000"
+      rows="4"
+    ></textarea>
     <div class="controls">
       <button id="send-btn">Send</button>
-      <button id="summarize-btn">Summarize Page</button>
+      <button id="summarize-btn">Summary</button>
       <button id="stop-btn" disabled>Stop</button>
       <button id="clear-btn">Clear</button>
     </div>

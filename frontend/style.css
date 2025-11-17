@@ -97,7 +97,7 @@ div {
 
 /* ============ HEADER ============ */
 h2 {
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 300;
   letter-spacing: 4px;
   text-transform: uppercase;
@@ -106,9 +106,16 @@ h2 {
   margin-bottom: 20px;
   text-shadow: 0 0 10px rgba(0, 212, 255, 0.8);
   animation: glow 2s ease-in-out infinite alternate;
-  padding-bottom: 15px;
+  padding: 15px 15px;
   border-bottom: 2px solid var(--primary-cyan);
   box-shadow: 0 2px 20px rgba(0, 212, 255, 0.3);
+}
+
+#letters {
+  font-size: 16px;
+  margin-right: 10px;
+  font-weight: 0;
+  letter-spacing: normal;
 }
 
 @keyframes glow {
@@ -163,10 +170,16 @@ h2 {
 
 /* ============ BUTTONS ============ */
 button {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  cursor: pointer;
   background: rgba(0, 212, 255, 0.1);
   border: 1px solid var(--primary-cyan);
   color: var(--primary-cyan);
-  padding: 10px 16px;
+  padding: 12px 20px;
   border-radius: 2px;
   cursor: pointer;
   font-size: 12px;
@@ -177,7 +190,14 @@ button {
   overflow: hidden;
   font-weight: 500;
   flex: 1;
+  width: 100%;
+  max-width: 200px;
+  box-sizing: border-box;
   min-width: 80px;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* Ripple effect */
@@ -286,6 +306,7 @@ p strong {
   background: rgba(0, 212, 255, 0.1);
   border-radius: 2px;
   font-size: 11px;
+  margin: 10px;
 }
 
 .muted {

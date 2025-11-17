@@ -17,6 +17,71 @@ let typerInterval = null;
 // Format: [{role: 'user'|'model', parts: [{text: string}]}]
 let conversationHistory = [];
 
+// --- Storage helpers --------------------------------------------------
+// Wrap chrome.storage.local with a safe fallback to localStorage so the UI
+// doesn't blow up if the browser doesn't expose chrome.storage in some
+// contexts (e.g., previewing popup.html outside the extension).
+function storageKeyForUrl(url) {
+    return `geminiHistory_${encodeURIComponent(url)}`;
+}
+
+async function loadStoredHistory() {
+    try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab || !tab.url) return;
+        const key = storageKeyForUrl(tab.url);
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            return new Promise(resolve => chrome.storage.local.get([key], data => {
+                if (data && Array.isArray(data[key])) conversationHistory = data[key];
+                resolve();
+            }));
+        }
+    } catch (e) {
+        // Fallback to window.localStorage if chrome.storage isn't available
+        try {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            const key = storageKeyForUrl(tab.url);
+            const raw = localStorage.getItem(key);
+            if (raw) conversationHistory = JSON.parse(raw);
+        } catch (err) {
+            // ignore
+        }
+    }
+}
+
+async function saveStoredHistory() {
+    try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab || !tab.url) return;
+        const key = storageKeyForUrl(tab.url);
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            return new Promise(resolve => chrome.storage.local.set({ [key]: conversationHistory }, resolve));
+        }
+    } catch (e) {
+        try {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            const key = storageKeyForUrl(tab.url);
+            localStorage.setItem(key, JSON.stringify(conversationHistory));
+        } catch (err) {
+            // ignore
+        }
+    }
+}
+
+async function removeStoredHistoryForActiveTab() {
+    try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab || !tab.url) return;
+        const key = storageKeyForUrl(tab.url);
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+            return new Promise(resolve => chrome.storage.local.remove([key], resolve));
+        }
+        localStorage.removeItem(key);
+    } catch (e) {
+        // ignore
+    }
+}
+
 // Text-to-speech state
 let speechSynthesis = null;
 let currentUtterance = null;
@@ -122,6 +187,8 @@ async function sendPrompt(overridePrompt, hideUserMessage = false) {
         role: 'user',
         parts: [{ text: prompt }]
     });
+    // Persist to storage for this page/tab
+    await saveStoredHistory();
     
     // Debug: Log conversation history
     console.log('Conversation History (after adding user message):', conversationHistory);
@@ -213,6 +280,8 @@ async function sendPrompt(overridePrompt, hideUserMessage = false) {
             // Debug: Log conversation history
             console.log('🤖 Conversation History (after adding AI response):', conversationHistory);
             console.log('📊 History length:', conversationHistory.length);
+            // Persist
+            await saveStoredHistory();
         }
 
         setStatus('done');
@@ -338,6 +407,8 @@ clearButton.addEventListener('click', () => {
     stopTyper();
     responseDiv.textContent = '';
     conversationHistory = []; // Clear conversation history
+    // Also remove any stored conversation for the active tab
+    removeStoredHistoryForActiveTab();
     console.log('Conversation History cleared');
     setStatus('idle');
     sendButton.disabled = false;
@@ -498,9 +569,16 @@ copyButton.addEventListener('click', copyResponseToClipboard);
 
 // Load voices when available (some browsers need this)
 if ('speechSynthesis' in window) {
-    speechSynthesis.onvoiceschanged = () => {
-        // Voices loaded
-    };
+    // Initialize speechSynthesis variable to the browser's implementation
+    speechSynthesis = window.speechSynthesis;
+    // Some browsers load voices asynchronously; register a no-op handler to
+    // trigger the browser's internal events without assuming `speechSynthesis`
+    // was already assigned.
+    try {
+        speechSynthesis.onvoiceschanged = () => { /* voices loaded */ };
+    } catch (e) {
+        // Some environments may not allow setting this; ignore.
+    }
 }
 
 // Keyboard shortcuts
@@ -524,6 +602,22 @@ promptInput.addEventListener('keydown', (e) => {
 
 // Initialize UI state
 setStatus('idle');
+
+// Load any stored history for the active tab so the chat can remember what we were
+// talking about between popup sessions for the same page. If there is previous
+// model output, display it to provide context immediately.
+(async () => {
+    await loadStoredHistory();
+    if (conversationHistory.length > 0) {
+        const lastModel = [...conversationHistory].reverse().find(m => m.role === 'model');
+        if (lastModel && lastModel.parts && lastModel.parts[0]) {
+            responseDiv.textContent = lastModel.parts[0].text;
+            ttsButton.disabled = false;
+            copyButton.disabled = false;
+            setStatus('idle');
+        }
+    }
+})();
 
 // Debug helper: Expose conversation history to window for easy inspection
 window.getConversationHistory = () => {
